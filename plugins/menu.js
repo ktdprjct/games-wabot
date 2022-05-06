@@ -31,18 +31,31 @@ let tags = {
 }
 const defaultMenu = {
   before: `
-╭─「 %me 」
-│ %ucapan, %name!
+╭━━━━━━━━━━━━┈ ❋ཻུ۪۪⸙
+├───❑「 %me 」❑───
 │
-│ Tanggal: *%week %weton, %date*
-│ Tanggal Islam: *%dateIslamic*
-│ Waktu: *%time*
+│✾ Hai, Kak %name!
+│✾ Version: %version
+│✾ Library: Baileys
+│✾ Runtime: %uptime
+│✾ Database: %rtotalreg of %totalreg
+╰┬────────────┈ ⳹
+┌┤◦➛ *Nama* : %name
+││◦➛ *Role* :  %role
+││◦➛ *Level* : %level
+││◦➛ *Exp* : %totalexp
+││◦➛ *Limit* : %limit
+││◦➛ *Money* : Rp.%money
+│╰────────────┈ ⳹
+├───❑「 ᴛʏ ᴛᴏ 」❑───
 │
-│ Uptime: *%uptime (%muptime)*
-│ Database: %rtotalreg of %totalreg
-│ Github:
-│ %github
-╰────
+│  ↓ Nurutomo ↓
+│https://github.com/Nurutomo
+│  ↓ rthelolchex ↓
+│https://github.com/rthelolchex
+│  ↓ Bochil Gamimg ↓
+│https://github.com/bochilgaming
+╰━━━━━━━━━━━━┈ ❋ཻུ۪۪⸙
 %readmore`.trimStart(),
   header: '╭─「 %category 」',
   body: '│ • %cmd %islimit %isPremium',
@@ -55,6 +68,7 @@ ${'```%npmdesc```'}
 let handler = async (m, { conn, usedPrefix: _p }) => {
   try {
     let package = JSON.parse(await fs.promises.readFile(path.join(__dirname, '../package.json')).catch(_ => '{}'))
+    let { money, role, level, limit, exp } = global.db.data.users[m.sender]
     let name = conn.getName(m.sender)
     let d = new Date(new Date + 3600000)
     let locale = 'id'
@@ -119,8 +133,8 @@ let handler = async (m, { conn, usedPrefix: _p }) => {
           ...help.filter(menu => menu.tags && menu.tags.includes(tag) && menu.help).map(menu => {
             return menu.help.map(help => {
               return body.replace(/%cmd/g, menu.prefix ? help : '%p' + help)
-                .replace(/%islimit/g, menu.limit ? '(Limit)' : '')
-                .replace(/%isPremium/g, menu.premium ? '(Premium)' : '')
+                .replace(/%islimit/g, menu.limit ? '🅛' : '')
+                .replace(/%isPremium/g, menu.premium ? '🅟' : '')
                 .trim()
             }).join('\n')
           }),
@@ -139,17 +153,15 @@ let handler = async (m, { conn, usedPrefix: _p }) => {
       npmdesc: package.description,
       version: package.version,
       github: package.homepage ? package.homepage.url || package.homepage : '[unknown github url]',
-      name, weton, week, date, dateIslamic, time, totalreg, rtotalreg,
+      name, weton, money, week, date, dateIslamic, time, totalreg, rtotalreg, role,
       readmore: readMore
     }
     text = text.replace(new RegExp(`%(${Object.keys(replace).sort((a, b) => b.length - a.length).join`|`})`, 'g'), (_, name) => '' + replace[name])
     let pp = await conn.getProfilePicture(conn.user.jid).catch(_ => path.join(__dirname, '../src/avatar_contact.png'))
-    conn.sendButton(m.chat,text.trim(), author,  pp,  [
-  ['Ping',  '/ping'],
-  ['Info',  '/info'],
-  ['Owner',  '/owner']
-], { quoted: m}).catch(_ => conn.sendFile(m.chat, pp, 'menu.jpg', text.trim(), m)).catch(_ => conn.reply(m.chat, text.trim(), m))
-  } catch (e) {
+    
+    conn.send2ButtonImg(m.chat, `https://telegra.ph/file/9ad3a925d572438242a1e.jpg`, text.trim(), '🅛=limit 🅟=premium', 'donate', `${_p}donate`, `owner`,`${_p}owner`, m)
+    
+ } catch (e) {
     conn.reply(m.chat, 'Maaf, menu sedang error', m)
     throw e
   }
